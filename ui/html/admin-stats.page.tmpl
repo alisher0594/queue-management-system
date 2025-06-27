@@ -164,7 +164,7 @@
                             <tbody>
                                 {{range .QueueEntries}}
                                 <tr>
-                                    <td><strong>{{.Number}}</strong></td>
+                                    <td><strong>{{.QueueNumber}}</strong></td>
                                     <td>
                                         <span class="badge bg-{{if eq .ServiceType "A"}}primary{{else if eq .ServiceType "B"}}success{{else}}warning{{end}}">
                                             Service {{.ServiceType}}
