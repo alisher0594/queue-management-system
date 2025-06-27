@@ -117,6 +117,7 @@ func (app *Application) routes() http.Handler {
 	router.HandlerFunc(http.MethodPost, "/", app.joinQueue)
 	router.HandlerFunc(http.MethodGet, "/queue/status/:number", app.queueStatus)
 	router.HandlerFunc(http.MethodGet, "/display", app.displayBoard)
+	router.HandlerFunc(http.MethodGet, "/demo", app.demoPage)
 
 	// Authentication routes
 	router.HandlerFunc(http.MethodGet, "/user/login", app.loginForm)

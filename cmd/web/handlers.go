@@ -172,3 +172,8 @@ func (app *Application) logoutUser(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
+
+// demoPage serves the demo guide HTML file
+func (app *Application) demoPage(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "./ui/static/demo.html")
+}
