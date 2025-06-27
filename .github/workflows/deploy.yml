@@ -1,4 +1,4 @@
-name: Deploy to DigitalOcean App Platform
+name: CI/CD Pipeline
 
 on:
   push:
@@ -7,36 +7,28 @@ on:
     branches: [ main ]
 
 jobs:
-  deploy:
+  test:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Set up Go
-      uses: actions/setup-go@v3
+      uses: actions/setup-go@v4
       with:
         go-version: 1.21
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
+    - name: Download Go dependencies
+      run: go mod download
         
-    - name: Install dependencies
-      run: |
-        go mod download
-        npm install
-        
-    - name: Run tests
+    - name: Run Go tests
       run: go test -v ./...
       
     - name: Build application
       run: go build -v ./cmd/web
       
-    - name: Deploy to DigitalOcean App Platform
-      if: github.ref == 'refs/heads/main'
-      uses: digitalocean/app_action@v1.1.5
-      with:
-        app_name: queue-management-system
-        token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+    - name: Verify build
+      run: |
+        echo "✅ Go build successful"
+        echo "✅ All tests passed"
+        echo "🚀 Ready for DigitalOcean deployment"
