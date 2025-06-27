@@ -1,12 +1,13 @@
 {
   "name": "queue-management-system",
   "version": "1.2.0",
-  "description": "Queue Management System",
+  "description": "Queue Management System - A Go web application for managing customer queues with real-time WebSocket updates",
   "private": true,
   "dependencies": {
     "ws": "^8.18.2"
   },
-  "scripts": {
-    "install": "npm install"
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
   }
 }

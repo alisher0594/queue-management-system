@@ -1,5 +1,5 @@
 # Build stage
-FROM golang:1.24-alpine AS builder
+FROM golang:1.21-alpine AS builder
 
 # Install Node.js and npm for node_modules
 RUN apk add --no-cache nodejs npm
@@ -7,7 +7,7 @@ RUN apk add --no-cache nodejs npm
 # Set working directory
 WORKDIR /app
 
-# Copy go mod files
+# Copy go mod files first for better caching
 COPY go.mod go.sum ./
 
 # Download go dependencies
@@ -15,7 +15,7 @@ RUN go mod download
 
 # Copy package.json and install node dependencies
 COPY package.json ./
-RUN npm install
+RUN npm install --production
 
 # Copy source code
 COPY . .

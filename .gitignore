@@ -37,3 +37,6 @@ Thumbs.db
 # Temporary files
 tmp/
 temp/
+
+# Node.js (keep package-lock.json but ignore node_modules during development)
+# node_modules/ - commented out because we need node_modules for deployment
