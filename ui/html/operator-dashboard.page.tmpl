@@ -1,0 +1,361 @@
+{{template "base" .}}
+
+{{define "title"}}Operator Dashboard{{end}}
+
+{{define "main"}}
+<div class="container-fluid" id="operator-dashboard">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mt-3">
+                <div class="card-header bg-primary text-white">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h3 class="card-title mb-0">
+                                <i class="bi bi-person-workspace"></i>
+                                Operator Dashboard - Service {{.User.ServiceType}}
+                            </h3>
+                        </div>
+                        <div class="col-auto">
+                            <span class="badge bg-light text-dark">{{.User.Name}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <!-- Current Service -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-person-check"></i>
+                        Current Service
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {{if .CurrentEntry}}
+                        <div class="text-center">
+                            <i class="bi bi-person-workspace text-success" style="font-size: 3rem;"></i>
+                            <h2 class="text-success mt-2">{{.CurrentEntry.QueueNumber}}</h2>
+                            <p class="text-muted">Phone: {{.CurrentEntry.PhoneNumber}}</p>
+                            <p class="text-muted">Called at: {{.CurrentEntry.CalledAt.Format "15:04"}}</p>
+                            
+                            <div class="d-grid gap-2 mt-3">
+                                <form action="/operator/complete" method="POST" style="display: inline;">
+                                    <input type='hidden' name='csrf_token' value='{{$.CSRFToken}}'>
+                                    <input type="hidden" name="entry_id" value="{{.CurrentEntry.ID}}">
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="bi bi-check-circle"></i>
+                                        Complete Service
+                                    </button>
+                                </form>
+                                <form action="/operator/postpone" method="POST" style="display: inline;">
+                                    <input type='hidden' name='csrf_token' value='{{$.CSRFToken}}'>
+                                    <input type="hidden" name="entry_id" value="{{.CurrentEntry.ID}}">
+                                    <button type="submit" class="btn btn-warning" 
+                                            {{if ge .CurrentEntry.PostponeCount 3}}disabled{{end}}>
+                                        <i class="bi bi-pause-circle"></i>
+                                        Postpone ({{.CurrentEntry.PostponeCount}}/3)
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    {{else}}
+                        <div class="text-center py-4">
+                            <i class="bi bi-clock text-muted" style="font-size: 3rem;"></i>
+                            <h4 class="text-muted mt-2">No Current Service</h4>
+                            <p class="text-muted">Ready to serve the next customer</p>
+                            
+                            <form action="/operator/call-next" method="POST">
+                                <input type='hidden' name='csrf_token' value='{{$.CSRFToken}}'>
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-telephone"></i>
+                                    Call Next
+                                </button>
+                            </form>
+                        </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Queue Statistics -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-bar-chart"></i>
+                        Today's Statistics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {{if .QueueStats}}
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="text-center">
+                                    <i class="bi bi-hourglass-split text-warning" style="font-size: 2rem;"></i>
+                                    <h4 class="mt-2" id="waiting-{{.User.ServiceType}}">{{.QueueStats.TotalActive}}</h4>
+                                    <small class="text-muted">Waiting</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-center">
+                                    <i class="bi bi-person-workspace text-success" style="font-size: 2rem;"></i>
+                                    <h4 class="mt-2" id="processing-{{.User.ServiceType}}">{{.QueueStats.TotalProcessing}}</h4>
+                                    <small class="text-muted">Processing</small>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="text-center">
+                                    <i class="bi bi-check-circle text-success" style="font-size: 2rem;"></i>
+                                    <h4 class="mt-2" id="completed-{{.User.ServiceType}}">{{.QueueStats.TotalServiced}}</h4>
+                                    <small class="text-muted">Completed</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-center">
+                                    <i class="bi bi-pause-circle text-warning" style="font-size: 2rem;"></i>
+                                    <h4 class="mt-2">{{.QueueStats.TotalPostponed}}</h4>
+                                    <small class="text-muted">Postponed</small>
+                                </div>
+                            </div>
+                        </div>
+                        {{if .QueueStats.AverageWaitTime}}
+                            <hr>
+                            <div class="text-center">
+                                <i class="bi bi-clock text-info"></i>
+                                <p class="mb-0">
+                                    <strong>Average Wait Time:</strong> 
+                                    {{printf "%.1f" .QueueStats.AverageWaitTime}} minutes
+                                </p>
+                            </div>
+                        {{end}}
+                    {{end}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Queue -->
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-list-ol"></i>
+                                Active Queue - Service {{.User.ServiceType}}
+                            </h5>
+                        </div>
+                        <div class="col-auto">
+                            <a href="/operator/postponed" class="btn btn-outline-dark btn-sm">
+                                <i class="bi bi-pause-circle"></i>
+                                View Postponed
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="active-queue-container">
+                        {{if .QueueEntries}}
+                            <div class="row">
+                                {{range $index, $entry := .QueueEntries}}
+                                    {{if lt $index 12}}
+                                        <div class="col-md-2 col-sm-3 col-4 mb-3">
+                                            <div class="card {{if eq $index 0}}border-success{{else}}border-secondary{{end}}">
+                                                <div class="card-body text-center p-2">
+                                                    {{if eq $index 0}}
+                                                        <i class="bi bi-1-circle text-success"></i>
+                                                    {{else}}
+                                                        <small class="text-muted">{{add $index 1}}</small>
+                                                    {{end}}
+                                                    <h6 class="mt-1 mb-1">{{.QueueNumber}}</h6>
+                                                    <small class="text-muted">{{.CreatedAt.Format "15:04"}}</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {{end}}
+                                {{end}}
+                            </div>
+                            {{if gt (len .QueueEntries) 12}}
+                                <div class="text-center mt-2">
+                                    <small class="text-muted">... and {{sub (len .QueueEntries) 12}} more</small>
+                                </div>
+                            {{end}}
+                        {{else}}
+                            <div class="text-center py-4">
+                                <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                                <h4 class="text-muted mt-2">No Active Queue</h4>
+                                <p class="text-muted">All caught up! No customers waiting.</p>
+                            </div>
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Operator Dashboard WebSocket Integration
+console.log('Operator dashboard initializing with WebSocket streaming');
+
+// Enhanced operator dashboard functionality with WebSocket integration for Active Queue
+function initializeOperatorDashboard() {
+    console.log('Setting up operator dashboard specific functionality');
+    
+    // Add confirmation to postpone button
+    const postponeBtn = document.querySelector('button[formaction*="postpone"]');
+    if (postponeBtn) {
+        postponeBtn.addEventListener('click', function(e) {
+            if (!confirm('Are you sure you want to postpone this customer?')) {
+                e.preventDefault();
+            }
+        });
+    }
+    
+    // Add confirmation to complete button for safety
+    const completeBtn = document.querySelector('button[formaction*="complete"]');
+    if (completeBtn) {
+        completeBtn.addEventListener('click', function(e) {
+            if (!confirm('Confirm service completion?')) {
+                e.preventDefault();
+            }
+        });
+    }
+    
+    console.log('Operator dashboard initialized with WebSocket streaming');
+}
+
+// Function to update the Active Queue section via WebSocket
+function updateActiveQueue(data) {
+    const activeQueueContainer = document.getElementById('active-queue-container');
+    if (!activeQueueContainer) return;
+    
+    // Get the current user's service type from the page
+    const serviceHeader = document.querySelector('h3');
+    let currentServiceType = 'A'; // Default fallback
+    
+    // Try to extract service type from the header
+    if (serviceHeader) {
+        const headerText = serviceHeader.textContent;
+        const match = headerText.match(/Service ([ABC])/);
+        if (match) {
+            currentServiceType = match[1];
+        }
+    }
+    
+    // Get active queue data for the current service type
+    const serviceData = data[currentServiceType];
+    if (!serviceData) return;
+    
+    console.log(`Updating active queue for Service ${currentServiceType}:`, serviceData);
+    
+    // If there are active entries, show them
+    if (serviceData.activeEntries && serviceData.activeEntries.length > 0) {
+        let html = '<div class="row">';
+        
+        serviceData.activeEntries.forEach((entry, index) => {
+            if (index < 12) { // Limit to 12 entries like the original template
+                const isFirst = index === 0;
+                html += `
+                    <div class="col-md-2 col-sm-3 col-4 mb-3">
+                        <div class="card ${isFirst ? 'border-success' : 'border-secondary'}">
+                            <div class="card-body text-center p-2">
+                                ${isFirst ? '<i class="bi bi-1-circle text-success"></i>' : `<small class="text-muted">${index + 1}</small>`}
+                                <h6 class="mt-1 mb-1">${entry.QueueNumber}</h6>
+                                <small class="text-muted">${entry.CreatedAt}</small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+        
+        html += '</div>';
+        
+        // Add "more" indicator if there are more than 12 entries
+        if (serviceData.activeEntries.length > 12) {
+            html += `
+                <div class="text-center mt-2">
+                    <small class="text-muted">... and ${serviceData.activeEntries.length - 12} more</small>
+                </div>
+            `;
+        }
+        
+        activeQueueContainer.innerHTML = html;
+        console.log(`Active queue updated with ${serviceData.activeEntries.length} entries`);
+    } else {
+        // Show empty state
+        activeQueueContainer.innerHTML = `
+            <div class="text-center py-4">
+                <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                <h4 class="text-muted mt-2">No Active Queue</h4>
+                <p class="text-muted">All caught up! No customers waiting.</p>
+            </div>
+        `;
+        console.log('Active queue cleared - no entries');
+    }
+}
+
+// Initialize WebSocket connection if not already connected
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Operator dashboard DOM loaded');
+    
+    // Make updateActiveQueue function globally accessible
+    window.updateActiveQueue = updateActiveQueue;
+    
+    // Check if main.js WebSocket is available
+    if (typeof window.QueueManager !== 'undefined' && window.QueueManager.initWebSocket) {
+        console.log('WebSocket manager available, initializing connection');
+        if (!window.websocket || window.websocket.readyState !== WebSocket.OPEN) {
+            window.QueueManager.initWebSocket();
+        }
+        
+        // Set up operator-specific functionality
+        setTimeout(() => {
+            initializeOperatorDashboard();
+        }, 500);
+    } else {
+        console.log('WebSocket manager not yet available, using main.js initialization');
+        // Initialize WebSocket if main.js hasn't done it yet
+        if (typeof window.initWebSocket === 'function') {
+            if (!window.websocket || window.websocket.readyState !== WebSocket.OPEN) {
+                window.initWebSocket();
+            }
+        }
+        
+        // Set up operator dashboard functionality
+        setTimeout(() => {
+            initializeOperatorDashboard();
+        }, 1000);
+    }
+});
+
+// Template helper functions
+{{`
+function add(a, b) {
+    return a + b;
+}
+
+function sub(a, b) {
+    return a - b;
+}
+`}}
+
+// Real-time notification for new customers
+function showOperatorNotification(message, type = 'info') {
+    if (typeof window.QueueManager !== 'undefined' && window.QueueManager.showNotification) {
+        window.QueueManager.showNotification(message, type);
+    }
+}
+
+console.log('Operator dashboard script loaded - using WebSocket streaming only');
+</script>
+{{end}}

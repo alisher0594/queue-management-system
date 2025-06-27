@@ -1,0 +1,20 @@
+name: queue-management-system
+region: nyc
+services:
+- name: web
+  dockerfile_path: Dockerfile
+  source_dir: /
+  github:
+    repo: YOUR_USERNAME/queue-management-system
+    branch: main
+    deploy_on_push: true
+  instance_count: 1
+  instance_size_slug: apps-s-1vcpu-0.5gb
+  http_port: 8080
+  routes:
+  - path: /
+  envs:
+  - key: PORT
+    value: "8080"
+    scope: RUN_TIME
+    type: GENERAL

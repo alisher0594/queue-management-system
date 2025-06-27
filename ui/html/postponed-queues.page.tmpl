@@ -1,0 +1,156 @@
+{{template "base" .}}
+
+{{define "title"}}Postponed Queues{{end}}
+
+{{define "main"}}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mt-3">
+                <div class="card-header bg-warning text-dark">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h3 class="card-title mb-0">
+                                <i class="bi bi-pause-circle"></i>
+                                Postponed Queues - Service {{.User.ServiceType}}
+                            </h3>
+                        </div>
+                        <div class="col-auto">
+                            <a href="/operator" class="btn btn-outline-dark">
+                                <i class="bi bi-arrow-left"></i>
+                                Back to Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    {{if .QueueEntries}}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Queue Number</th>
+                                        <th>Phone Number</th>
+                                        <th>Originally Joined</th>
+                                        <th>Postponed At</th>
+                                        <th>Postpone Count</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{range .QueueEntries}}
+                                        <tr>
+                                            <td>
+                                                <h5 class="mb-0">
+                                                    <span class="badge bg-warning text-dark">{{.QueueNumber}}</span>
+                                                </h5>
+                                            </td>
+                                            <td>{{.PhoneNumber}}</td>
+                                            <td>{{.CreatedAt.Format "15:04"}}</td>
+                                            <td>
+                                                {{if .PostponedAt}}
+                                                    {{.PostponedAt.Format "15:04"}}
+                                                {{else}}
+                                                    -
+                                                {{end}}
+                                            </td>
+                                            <td>
+                                                <span class="badge {{if ge .PostponeCount 3}}bg-danger{{else if ge .PostponeCount 2}}bg-warning{{else}}bg-secondary{{end}}">
+                                                    {{.PostponeCount}}/3
+                                                </span>
+                                            </td>
+                                            <td>
+                                                {{if lt .PostponeCount 3}}
+                                                    <form action="/operator/call-postponed" method="POST" style="display: inline;">
+                                                        <input type='hidden' name='csrf_token' value='{{$.CSRFToken}}'>
+                                                        <input type="hidden" name="entry_id" value="{{.ID}}">
+                                                        <button type="submit" class="btn btn-primary btn-sm">
+                                                            <i class="bi bi-telephone"></i>
+                                                            Call Now
+                                                        </button>
+                                                    </form>
+                                                {{else}}
+                                                    <span class="text-muted">
+                                                        <i class="bi bi-x-circle"></i>
+                                                        Max postpones reached
+                                                    </span>
+                                                {{end}}
+                                            </td>
+                                        </tr>
+                                    {{end}}
+                                </tbody>
+                            </table>
+                        </div>
+                    {{else}}
+                        <div class="text-center py-5">
+                            <i class="bi bi-check-circle text-success" style="font-size: 4rem;"></i>
+                            <h4 class="text-muted mt-3">No Postponed Queues</h4>
+                            <p class="text-muted">Great! All customers are being served or waiting in the active queue.</p>
+                            <a href="/operator" class="btn btn-primary">
+                                <i class="bi bi-arrow-left"></i>
+                                Back to Dashboard
+                            </a>
+                        </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{if .QueueEntries}}
+        <!-- Instructions -->
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-info-circle"></i>
+                            Instructions
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <i class="bi bi-telephone text-primary"></i>
+                                        <strong>Call Postponed:</strong> Click "Call Now" to serve a postponed customer
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="bi bi-exclamation-triangle text-warning"></i>
+                                        <strong>Postpone Limit:</strong> Customers can only be postponed 3 times maximum
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <i class="bi bi-clock text-info"></i>
+                                        <strong>Priority:</strong> Consider serving older postponed entries first
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="bi bi-person-check text-success"></i>
+                                        <strong>Availability:</strong> Make sure you're not currently serving another customer
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {{end}}
+</div>
+
+<script>
+// No auto-refresh - using WebSocket streaming for real-time updates
+console.log('Postponed queues page using WebSocket streaming only - no page refreshes');
+</script>
+{{end}}

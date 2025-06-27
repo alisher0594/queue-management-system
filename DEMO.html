@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Queue Management System - Demo Guide</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .demo-section {
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .step {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #0d6efd;
+            border-radius: 4px;
+        }
+        .credentials {
+            background: #d1ecf1;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">🎯 Queue Management System - Demo Guide</h1>
+        
+        <div class="alert alert-success">
+            <h4>✅ System Status: Running</h4>
+            <p class="mb-0">Your queue management system is up and running at <strong>http://localhost:4000</strong></p>
+        </div>
+
+        <div class="demo-section">
+            <h2>🏠 Customer Experience Demo</h2>
+            <div class="step">
+                <h5>Step 1: Join the Queue</h5>
+                <p>1. Go to <a href="http://localhost:4000" target="_blank">http://localhost:4000</a></p>
+                <p>2. Fill in your details:</p>
+                <ul>
+                    <li>Name: John Doe</li>
+                    <li>Phone: 1234567890</li>
+                    <li>Email: john@example.com</li>
+                    <li>Service Type: A, B, or C</li>
+                </ul>
+                <p>3. Click "Join Queue" to get your queue number</p>
+            </div>
+            <div class="step">
+                <h5>Step 2: Check Status</h5>
+                <p>After joining, you'll be redirected to a status page where you can:</p>
+                <ul>
+                    <li>See your queue number</li>
+                    <li>Check your position in line</li>
+                    <li>Get real-time updates</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>📺 Display Board Demo</h2>
+            <div class="step">
+                <h5>Public Display</h5>
+                <p>Visit <a href="http://localhost:4000/display" target="_blank">http://localhost:4000/display</a></p>
+                <p>This page shows:</p>
+                <ul>
+                    <li>Currently serving numbers for each service type</li>
+                    <li>Real-time updates every 5 seconds</li>
+                    <li>Designed for display in waiting areas</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>👨‍💼 Operator Demo</h2>
+            <div class="step">
+                <h5>Step 1: Login as Operator</h5>
+                <p>1. Go to <a href="http://localhost:4000/user/login" target="_blank">http://localhost:4000/user/login</a></p>
+                <p>2. Use these credentials:</p>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="credentials">
+                            <strong>Service A Operator:</strong><br>
+                            Username: operator_a<br>
+                            Password: operator123
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="credentials">
+                            <strong>Service B Operator:</strong><br>
+                            Username: operator_b<br>
+                            Password: operator123
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="credentials">
+                            <strong>Service C Operator:</strong><br>
+                            Username: operator_c<br>
+                            Password: operator123
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="step">
+                <h5>Step 2: Operate the Queue</h5>
+                <p>After login, you can:</p>
+                <ul>
+                    <li><strong>Call Next:</strong> Call the next customer in your service queue</li>
+                    <li><strong>Postpone:</strong> Move current customer to postponed list (max 2 times)</li>
+                    <li><strong>Complete Service:</strong> Mark service as completed</li>
+                    <li><strong>View Postponed:</strong> See and recall postponed customers</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>👨‍💻 Admin Demo</h2>
+            <div class="step">
+                <h5>Step 1: Login as Admin</h5>
+                <p>1. Go to <a href="http://localhost:4000/user/login" target="_blank">http://localhost:4000/user/login</a></p>
+                <p>2. Use admin credentials:</p>
+                <div class="credentials">
+                    <strong>Admin:</strong><br>
+                    Username: admin<br>
+                    Password: admin123
+                </div>
+            </div>
+            <div class="step">
+                <h5>Step 2: Manage the System</h5>
+                <p>As admin, you can:</p>
+                <ul>
+                    <li><strong>Dashboard:</strong> Overview of all queues and statistics</li>
+                    <li><strong>Statistics:</strong> Detailed analytics and performance metrics</li>
+                    <li><strong>User Management:</strong> Create new operator accounts</li>
+                </ul>
+                <p>Quick links after login:</p>
+                <ul>
+                    <li><a href="http://localhost:4000/admin/stats" target="_blank">Statistics Page</a></li>
+                    <li><a href="http://localhost:4000/admin/users" target="_blank">User Management</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>🔄 Complete Workflow Demo</h2>
+            <div class="step">
+                <h5>Recommended Testing Sequence:</h5>
+                <ol>
+                    <li><strong>Create some customers:</strong> Join queue with different service types</li>
+                    <li><strong>Monitor display:</strong> Open display board in another tab</li>
+                    <li><strong>Login as operator:</strong> Use operator credentials to serve customers</li>
+                    <li><strong>Test operations:</strong> Call next, postpone, complete services</li>
+                    <li><strong>Check admin view:</strong> Login as admin to see statistics</li>
+                    <li><strong>Real-time updates:</strong> Watch all interfaces update automatically</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>🛠️ Technical Features</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Backend Features:</h5>
+                    <ul>
+                        <li>Go with standard libraries</li>
+                        <li>Thread-safe in-memory storage</li>
+                        <li>WebSocket real-time updates</li>
+                        <li>CSRF protection</li>
+                        <li>Session-based authentication</li>
+                        <li>Role-based access control</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h5>Frontend Features:</h5>
+                    <ul>
+                        <li>Bootstrap 5 responsive design</li>
+                        <li>Real-time JavaScript updates</li>
+                        <li>Form validation</li>
+                        <li>Mobile-friendly interface</li>
+                        <li>Print-friendly queue tickets</li>
+                        <li>Accessibility support</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert alert-info">
+            <h5>📝 Notes:</h5>
+            <ul class="mb-0">
+                <li>Data is stored in memory and will be lost when server restarts</li>
+                <li>Real-time updates work across all open browser tabs</li>
+                <li>Each service type has its own independent queue</li>
+                <li>Customers can be postponed maximum 2 times</li>
+                <li>All forms include CSRF protection for security</li>
+            </ul>
+        </div>
+
+        <div class="text-center mt-4">
+            <p class="text-muted">Queue Management System - Built with Go & Bootstrap</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

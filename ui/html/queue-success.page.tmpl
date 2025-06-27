@@ -1,0 +1,94 @@
+{{template "base" .}}
+
+{{define "title"}}Queue Success{{end}}
+
+{{define "main"}}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card mt-5">
+            <div class="card-header bg-success text-white text-center">
+                <h3 class="card-title mb-0">
+                    <i class="bi bi-check-circle"></i>
+                    Successfully Added to Queue
+                </h3>
+            </div>
+            <div class="card-body text-center">
+                <div class="alert alert-success" role="alert">
+                    <h2 class="alert-heading">Your Queue Number</h2>
+                    <hr>
+                    <h1 class="display-3 text-primary">{{.CurrentEntry.QueueNumber}}</h1>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card border-primary">
+                            <div class="card-body">
+                                <i class="bi bi-tag text-primary" style="font-size: 2rem;"></i>
+                                <h6 class="card-title mt-2">Service Type</h6>
+                                <p class="card-text">{{.CurrentEntry.ServiceType}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-info">
+                            <div class="card-body">
+                                <i class="bi bi-clock text-info" style="font-size: 2rem;"></i>
+                                <h6 class="card-title mt-2">Time Joined</h6>
+                                <p class="card-text">{{.CurrentEntry.CreatedAt.Format "15:04"}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <p class="text-muted">
+                        <i class="bi bi-info-circle"></i>
+                        Please keep this number and wait for your call. You can check your status using the button below.
+                    </p>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <a href="/queue/status/{{.CurrentEntry.QueueNumber}}" class="btn btn-primary">
+                        <i class="bi bi-eye"></i>
+                        Check My Status
+                    </a>
+                    <a href="/display" class="btn btn-outline-secondary">
+                        <i class="bi bi-display"></i>
+                        View Display Board
+                    </a>
+                    <a href="/" class="btn btn-outline-primary">
+                        <i class="bi bi-house"></i>
+                        Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Important Information -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-exclamation-triangle text-warning"></i>
+                    Important Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <i class="bi bi-clock text-primary"></i>
+                        <strong>Maximum Wait Time:</strong> Please be present when your number is called. If you're absent, your queue will be postponed.
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-arrow-repeat text-warning"></i>
+                        <strong>Postpone Limit:</strong> A queue can be postponed maximum 3 times.
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-display text-info"></i>
+                        <strong>Monitor Display:</strong> Watch the display board for real-time updates.
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}

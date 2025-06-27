@@ -1,0 +1,117 @@
+{{template "base" .}}
+
+{{define "title"}}Login{{end}}
+
+{{define "main"}}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card mt-5">
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title mb-0 text-center">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    Staff Login
+                </h3>
+            </div>
+            <div class="card-body">
+                {{if .Form}}
+                    {{with .Form.Errors.Get "generic"}}
+                        <div class="alert alert-danger" role="alert">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            {{.}}
+                        </div>
+                    {{end}}
+                {{end}}
+
+                <form action='/user/login' method='POST'>
+                    <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" 
+                               class="form-control {{if .Form}}{{with .Form.Errors.Get "email"}}is-invalid{{end}}{{end}}" 
+                               id="email" 
+                               name="email" 
+                               value="{{if .Form}}{{.Form.Get "email"}}{{end}}"
+                               placeholder="your@email.com"
+                               required>
+                        {{if .Form}}{{with .Form.Errors.Get "email"}}
+                            <div class="invalid-feedback">{{.}}</div>
+                        {{end}}{{end}}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" 
+                               class="form-control {{if .Form}}{{with .Form.Errors.Get "password"}}is-invalid{{end}}{{end}}" 
+                               id="password" 
+                               name="password"
+                               required>
+                        {{if .Form}}{{with .Form.Errors.Get "password"}}
+                            <div class="invalid-feedback">{{.}}</div>
+                        {{end}}{{end}}
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-box-arrow-in-right"></i>
+                            Login
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Demo Credentials -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-info-circle"></i>
+                    Demo Credentials
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12">
+                        <h6>Administrator:</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Email:</strong> admin@queue.com</li>
+                            <li><strong>Password:</strong> admin123</li>
+                        </ul>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6>Operator A:</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Email:</strong> operatora@queue.com</li>
+                            <li><strong>Password:</strong> operator123</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>Operator B:</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Email:</strong> operatorb@queue.com</li>
+                            <li><strong>Password:</strong> operator123</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>Operator C:</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Email:</strong> operatorc@queue.com</li>
+                            <li><strong>Password:</strong> operator123</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-3">
+            <a href="/" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i>
+                Back to Home
+            </a>
+        </div>
+    </div>
+</div>
+{{end}}

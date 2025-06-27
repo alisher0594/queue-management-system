@@ -1,0 +1,351 @@
+{{template "base" .}}
+
+{{define "title"}}Display Board{{end}}
+
+{{define "main"}}
+<div class="container-fluid" id="display-board">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mt-3">
+                <div class="card-header bg-dark text-white text-center">
+                    <h2 class="card-title mb-0">
+                        <i class="bi bi-display"></i>
+                        Queue Display Board
+                    </h2>
+                    <p class="mb-0"><span id="current-time"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Currently Being Served -->
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h3 class="card-title mb-0">
+                        <i class="bi bi-person-workspace"></i>
+                        Currently Being Served
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div id="currently-being-served">
+                        {{if .QueueEntries}}
+                            <div class="row">
+                                {{range .QueueEntries}}
+                                    <div class="col-md-4 mb-3">
+                                        <div class="card border-success">
+                                            <div class="card-body text-center">
+                                                <i class="bi bi-person-check text-success" style="font-size: 3rem;"></i>
+                                                <h2 class="text-success mt-2">{{.QueueNumber}}</h2>
+                                                <h5 class="text-muted">Service {{.ServiceType}}</h5>
+                                                {{if .CalledAt}}
+                                                    <small class="text-muted">Called at: {{.CalledAt.Format "15:04"}}</small>
+                                                {{end}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {{end}}
+                            </div>
+                        {{else}}
+                            <div class="text-center py-5">
+                                <i class="bi bi-clock text-muted" style="font-size: 4rem;"></i>
+                                <h4 class="text-muted mt-3">No one is currently being served</h4>
+                                <p class="text-muted">Please wait for your number to be called</p>
+                            </div>
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Service Counters -->
+    <div class="row mt-3">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="card-title mb-0">
+                        <i class="bi bi-info-circle"></i>
+                        Service A
+                    </h4>
+                    <small>General Inquiries</small>
+                </div>
+                <div class="card-body text-center">
+                    <div id="service-a-status">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-success text-white text-center">
+                    <h4 class="card-title mb-0">
+                        <i class="bi bi-person-badge"></i>
+                        Service B
+                    </h4>
+                    <small>Account Services</small>
+                </div>
+                <div class="card-body text-center">
+                    <div id="service-b-status">
+                        <div class="spinner-border text-success" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-warning text-white text-center">
+                    <h4 class="card-title mb-0">
+                        <i class="bi bi-tools"></i>
+                        Service C
+                    </h4>
+                    <small>Technical Support</small>
+                </div>
+                <div class="card-body text-center">
+                    <div id="service-c-status">
+                        <div class="spinner-border text-warning" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instructions -->
+    <div class="row mt-3 mb-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-info-circle"></i>
+                        Instructions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li><i class="bi bi-1-circle text-primary"></i> Please listen for your queue number</li>
+                                <li><i class="bi bi-2-circle text-primary"></i> Proceed to the appropriate service counter when called</li>
+                                <li><i class="bi bi-3-circle text-primary"></i> If you miss your call, your number will be postponed</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li><i class="bi bi-clock text-warning"></i> Maximum wait time applies</li>
+                                <li><i class="bi bi-arrow-repeat text-warning"></i> Maximum 3 postponements allowed</li>
+                                <li><i class="bi bi-question-circle text-info"></i> Ask staff for assistance if needed</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Update current time
+function updateTime() {
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('en-US', { 
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+    document.getElementById('current-time').textContent = timeStr;
+}
+
+// Custom update function for display board that works with main.js WebSocket
+function updateServiceStatus(data) {
+    console.log('Display board received data:', data);
+    
+    // Update "Currently Being Served" section
+    updateCurrentlyBeingServed(data);
+    
+    // Update Service A
+    if (data.A) {
+        const serviceADiv = document.getElementById('service-a-status');
+        if (serviceADiv) {
+            if (data.A.processing && data.A.processing.length > 0) {
+                const queueNumber = data.A.processing[0].QueueNumber || 
+                                   data.A.processing[0].queue_number || 
+                                   data.A.processing[0].Number;
+                serviceADiv.innerHTML = `
+                    <h3 class="text-primary">${queueNumber}</h3>
+                    <p class="text-muted">Currently Serving</p>
+                `;
+            } else {
+                serviceADiv.innerHTML = `
+                    <h4 class="text-muted">No Active Service</h4>
+                    <p class="text-muted">Waiting: ${data.A.active || 0}</p>
+                `;
+            }
+        }
+    }
+    
+    // Update Service B
+    if (data.B) {
+        const serviceBDiv = document.getElementById('service-b-status');
+        if (serviceBDiv) {
+            if (data.B.processing && data.B.processing.length > 0) {
+                const queueNumber = data.B.processing[0].QueueNumber || 
+                                   data.B.processing[0].queue_number || 
+                                   data.B.processing[0].Number;
+                serviceBDiv.innerHTML = `
+                    <h3 class="text-success">${queueNumber}</h3>
+                    <p class="text-muted">Currently Serving</p>
+                `;
+            } else {
+                serviceBDiv.innerHTML = `
+                    <h4 class="text-muted">No Active Service</h4>
+                    <p class="text-muted">Waiting: ${data.B.active || 0}</p>
+                `;
+            }
+        }
+    }
+    
+    // Update Service C
+    if (data.C) {
+        const serviceCDiv = document.getElementById('service-c-status');
+        if (serviceCDiv) {
+            if (data.C.processing && data.C.processing.length > 0) {
+                const queueNumber = data.C.processing[0].QueueNumber || 
+                                   data.C.processing[0].queue_number || 
+                                   data.C.processing[0].Number;
+                serviceCDiv.innerHTML = `
+                    <h3 class="text-warning">${queueNumber}</h3>
+                    <p class="text-muted">Currently Serving</p>
+                `;
+            } else {
+                serviceCDiv.innerHTML = `
+                    <h4 class="text-muted">No Active Service</h4>
+                    <p class="text-muted">Waiting: ${data.C.active || 0}</p>
+                `;
+            }
+        }
+    }
+}
+
+// Function to update the "Currently Being Served" section
+function updateCurrentlyBeingServed(data) {
+    const currentlyServedContainer = document.getElementById('currently-being-served');
+    if (!currentlyServedContainer) return;
+    
+    // Collect all currently processing entries from all services
+    const processingEntries = [];
+    
+    Object.keys(data).forEach(serviceType => {
+        if (serviceType === 'timestamp' || serviceType === 'server_time') return;
+        
+        const serviceData = data[serviceType];
+        if (serviceData && serviceData.processing && serviceData.processing.length > 0) {
+            serviceData.processing.forEach(entry => {
+                processingEntries.push({
+                    ...entry,
+                    serviceType: serviceType,
+                    queueNumber: entry.QueueNumber || entry.queue_number || entry.Number
+                });
+            });
+        }
+    });
+    
+    // Update the UI
+    if (processingEntries.length > 0) {
+        let html = '<div class="row">';
+        processingEntries.forEach(entry => {
+            const currentTime = new Date().toLocaleTimeString('en-US', { 
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            html += `
+                <div class="col-md-4 mb-3">
+                    <div class="card border-success">
+                        <div class="card-body text-center">
+                            <i class="bi bi-person-check text-success" style="font-size: 3rem;"></i>
+                            <h2 class="text-success mt-2">${entry.queueNumber}</h2>
+                            <h5 class="text-muted">Service ${entry.serviceType}</h5>
+                            <small class="text-muted">Called at ${entry.CalledAt || currentTime}</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        currentlyServedContainer.innerHTML = html;
+    } else {
+        currentlyServedContainer.innerHTML = `
+            <div class="text-center py-5">
+                <i class="bi bi-clock text-muted" style="font-size: 4rem;"></i>
+                <h4 class="text-muted mt-3">No one is currently being served</h4>
+                <p class="text-muted">Please wait for your number to be called</p>
+            </div>
+        `;
+    }
+}
+
+// Wait for main.js to be fully loaded and then set up the display board updates
+function initializeDisplayBoard() {
+    console.log('Initializing display board...');
+    
+    // Wait for QueueManager to be available
+    function waitForQueueManager() {
+        if (typeof window.QueueManager !== 'undefined' && window.QueueManager.initWebSocket) {
+            console.log('QueueManager found, setting up display board updates');
+            setupDisplayBoardUpdates();
+        } else {
+            console.log('Waiting for QueueManager from main.js...');
+            setTimeout(waitForQueueManager, 200);
+        }
+    }
+    
+    waitForQueueManager();
+}
+
+function setupDisplayBoardUpdates() {
+    // Override the updateDisplayBoard function to use our custom one
+    if (typeof window.QueueManager !== 'undefined' && window.QueueManager.updateDisplayBoard) {
+        const originalUpdateDisplayBoard = window.QueueManager.updateDisplayBoard;
+        window.QueueManager.updateDisplayBoard = function(data) {
+            originalUpdateDisplayBoard(data);
+            updateServiceStatus(data);
+        };
+        console.log('Enhanced QueueManager updateDisplayBoard function');
+    } else {
+        // Fallback - create our own update function
+        window.updateDisplayBoard = updateServiceStatus;
+        console.log('Created fallback updateDisplayBoard function');
+    }
+    
+    console.log('Display board update function configured');
+}
+
+// Initialize
+updateTime();
+setInterval(updateTime, 1000);
+
+// Initialize display board when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Display board DOM loaded, initializing...');
+    initializeDisplayBoard();
+});
+
+// Also try to initialize after a short delay in case main.js loads later
+setTimeout(function() {
+    initializeDisplayBoard();
+}, 1000);
+
+// No auto-refresh - using WebSocket streaming for real-time updates
+console.log('Display board using WebSocket streaming only - no page refreshes');
+</script>
+{{end}}

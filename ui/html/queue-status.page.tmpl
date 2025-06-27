@@ -1,0 +1,163 @@
+{{template "base" .}}
+
+{{define "title"}}Queue Status{{end}}
+
+{{define "main"}}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card mt-5">
+            <div class="card-header bg-info text-white">
+                <h3 class="card-title mb-0">
+                    <i class="bi bi-info-circle"></i>
+                    Queue Status for {{.CurrentEntry.QueueNumber}}
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card border-primary">
+                            <div class="card-body text-center">
+                                <i class="bi bi-tag text-primary" style="font-size: 3rem;"></i>
+                                <h4 class="card-title mt-2">Queue Number</h4>
+                                <h2 class="text-primary">{{.CurrentEntry.QueueNumber}}</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-secondary">
+                            <div class="card-body text-center">
+                                {{if eq .CurrentEntry.Status "active"}}
+                                    <i class="bi bi-hourglass-split text-warning" style="font-size: 3rem;"></i>
+                                    <h4 class="card-title mt-2">Status</h4>
+                                    <h3 class="text-warning">Waiting</h3>
+                                {{else if eq .CurrentEntry.Status "processing"}}
+                                    <i class="bi bi-person-workspace text-success" style="font-size: 3rem;"></i>
+                                    <h4 class="card-title mt-2">Status</h4>
+                                    <h3 class="text-success">Being Served</h3>
+                                {{else if eq .CurrentEntry.Status "postponed"}}
+                                    <i class="bi bi-pause-circle text-warning" style="font-size: 3rem;"></i>
+                                    <h4 class="card-title mt-2">Status</h4>
+                                    <h3 class="text-warning">Postponed</h3>
+                                {{else if eq .CurrentEntry.Status "serviced"}}
+                                    <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+                                    <h4 class="card-title mt-2">Status</h4>
+                                    <h3 class="text-success">Completed</h3>
+                                {{end}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{if eq .CurrentEntry.Status "active"}}
+                    {{with .Form.Get "position"}}
+                        {{if ne . "0"}}
+                            <div class="alert alert-info mt-3" role="alert">
+                                <i class="bi bi-list-ol"></i>
+                                <strong>Your Position:</strong> {{.}} in the queue for Service {{$.CurrentEntry.ServiceType}}
+                            </div>
+                        {{end}}
+                    {{end}}
+                {{end}}
+
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <i class="bi bi-gear text-primary"></i>
+                                <h6 class="mt-2">Service Type</h6>
+                                <p class="mb-0">{{.CurrentEntry.ServiceType}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <i class="bi bi-clock text-info"></i>
+                                <h6 class="mt-2">Joined At</h6>
+                                <p class="mb-0">{{.CurrentEntry.CreatedAt.Format "15:04"}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                {{if .CurrentEntry.PostponedAt}}
+                                    <i class="bi bi-arrow-repeat text-warning"></i>
+                                    <h6 class="mt-2">Postponed</h6>
+                                    <p class="mb-0">{{.CurrentEntry.PostponeCount}} times</p>
+                                {{else}}
+                                    <i class="bi bi-phone text-success"></i>
+                                    <h6 class="mt-2">Phone</h6>
+                                    <p class="mb-0">{{.CurrentEntry.PhoneNumber}}</p>
+                                {{end}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 mt-4">
+                    <button onclick="refreshStatus()" class="btn btn-primary">
+                        <i class="bi bi-arrow-clockwise"></i>
+                        Refresh Status
+                    </button>
+                    <a href="/display" class="btn btn-outline-secondary">
+                        <i class="bi bi-display"></i>
+                        View Display Board
+                    </a>
+                    <a href="/" class="btn btn-outline-primary">
+                        <i class="bi bi-house"></i>
+                        Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Information -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-info-circle"></i>
+                    Status Guide
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <i class="bi bi-hourglass-split text-warning" style="font-size: 2rem;"></i>
+                            <h6 class="mt-2">Waiting</h6>
+                            <small class="text-muted">In queue</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <i class="bi bi-person-workspace text-success" style="font-size: 2rem;"></i>
+                            <h6 class="mt-2">Being Served</h6>
+                            <small class="text-muted">Currently with operator</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <i class="bi bi-pause-circle text-warning" style="font-size: 2rem;"></i>
+                            <h6 class="mt-2">Postponed</h6>
+                            <small class="text-muted">Temporarily delayed</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <i class="bi bi-check-circle text-success" style="font-size: 2rem;"></i>
+                            <h6 class="mt-2">Completed</h6>
+                            <small class="text-muted">Service finished</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// No auto-refresh - using WebSocket streaming for real-time updates
+console.log('Queue status page using WebSocket streaming only - no page refreshes');
+</script>
+{{end}}

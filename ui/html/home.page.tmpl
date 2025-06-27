@@ -1,0 +1,132 @@
+{{template "base" .}}
+
+{{define "title"}}Home{{end}}
+
+{{define "main"}}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card mt-5">
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title mb-0">
+                    <i class="bi bi-clipboard-plus"></i>
+                    Join the Queue
+                </h3>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Please select a service and provide your phone number to join the queue.</p>
+                
+                <form action='/' method='POST'>
+                    <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
+                    
+                    <div class="mb-3">
+                        <label for="service_type" class="form-label">Service Type</label>
+                        <select class="form-select {{if .Form}}{{with .Form.Errors.Get "service_type"}}is-invalid{{end}}{{end}}" 
+                                id="service_type" name="service_type" required>
+                            <option value="">Choose a service...</option>
+                            <option value="A" {{if .Form}}{{if eq (.Form.Get "service_type") "A"}}selected{{end}}{{end}}>
+                                Service A - General Inquiries
+                            </option>
+                            <option value="B" {{if .Form}}{{if eq (.Form.Get "service_type") "B"}}selected{{end}}{{end}}>
+                                Service B - Account Services
+                            </option>
+                            <option value="C" {{if .Form}}{{if eq (.Form.Get "service_type") "C"}}selected{{end}}{{end}}>
+                                Service C - Technical Support
+                            </option>
+                        </select>
+                        {{if .Form}}{{with .Form.Errors.Get "service_type"}}
+                            <div class="invalid-feedback">{{.}}</div>
+                        {{end}}{{end}}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="phone_number" class="form-label">Phone Number</label>
+                        <input type="tel" 
+                               class="form-control {{if .Form}}{{with .Form.Errors.Get "phone_number"}}is-invalid{{end}}{{end}}" 
+                               id="phone_number" 
+                               name="phone_number" 
+                               value="{{if .Form}}{{.Form.Get "phone_number"}}{{end}}"
+                               placeholder="+1234567890"
+                               required>
+                        <div class="form-text">Please include country code (e.g., +1234567890)</div>
+                        {{if .Form}}{{with .Form.Errors.Get "phone_number"}}
+                            <div class="invalid-feedback">{{.}}</div>
+                        {{end}}{{end}}
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-plus-circle"></i>
+                            Join Queue
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Service Information -->
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-info-circle text-primary" style="font-size: 2rem;"></i>
+                        <h6 class="card-title mt-2">Service A</h6>
+                        <small class="text-muted">General Inquiries</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-person-badge text-success" style="font-size: 2rem;"></i>
+                        <h6 class="card-title mt-2">Service B</h6>
+                        <small class="text-muted">Account Services</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-tools text-warning" style="font-size: 2rem;"></i>
+                        <h6 class="card-title mt-2">Service C</h6>
+                        <small class="text-muted">Technical Support</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Check Queue Status -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="bi bi-search"></i>
+                    Check Your Queue Status
+                </h5>
+                <p class="card-text">Already have a queue number? Check your position and status.</p>
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Enter your queue number (e.g., A001)" id="queue-lookup">
+                    <button class="btn btn-outline-secondary" type="button" onclick="checkQueue()">
+                        <i class="bi bi-search"></i>
+                        Check Status
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function checkQueue() {
+    const queueNumber = document.getElementById('queue-lookup').value.trim();
+    if (queueNumber) {
+        window.location.href = '/queue/status/' + encodeURIComponent(queueNumber);
+    }
+}
+
+// Allow Enter key to check queue status
+document.getElementById('queue-lookup').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        checkQueue();
+    }
+});
+</script>
+{{end}}

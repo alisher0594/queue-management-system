@@ -1,0 +1,300 @@
+{{template "base" .}}
+
+{{define "title"}}Admin Dashboard{{end}}
+
+{{define "main"}}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mt-3">
+                <div class="card-header bg-dark text-white">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h3 class="card-title mb-0">
+                                <i class="bi bi-gear"></i>
+                                Administrator Dashboard
+                            </h3>
+                        </div>
+                        <div class="col-auto">
+                            <span class="badge bg-light text-dark">{{.User.Name}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mt-3">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="bi bi-bar-chart text-primary" style="font-size: 3rem;"></i>
+                    <h5 class="mt-2">Statistics</h5>
+                    <p class="text-muted">View detailed analytics</p>
+                    <a href="/admin/stats" class="btn btn-primary">
+                        <i class="bi bi-arrow-right"></i>
+                        View Stats
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="bi bi-people text-success" style="font-size: 3rem;"></i>
+                    <h5 class="mt-2">Users</h5>
+                    <p class="text-muted">Manage operators and admins</p>
+                    <a href="/admin/users" class="btn btn-success">
+                        <i class="bi bi-arrow-right"></i>
+                        Manage Users
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="bi bi-display text-info" style="font-size: 3rem;"></i>
+                    <h5 class="mt-2">Display Board</h5>
+                    <p class="text-muted">View public display</p>
+                    <a href="/display" class="btn btn-info" target="_blank">
+                        <i class="bi bi-arrow-right"></i>
+                        Open Display
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="bi bi-house text-warning" style="font-size: 3rem;"></i>
+                    <h5 class="mt-2">Client Portal</h5>
+                    <p class="text-muted">View customer interface</p>
+                    <a href="/" class="btn btn-warning" target="_blank">
+                        <i class="bi bi-arrow-right"></i>
+                        Open Portal
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Today's Overview -->
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-calendar-day"></i>
+                        Today's Overview
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {{if .QueueEntries}}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Queue Number</th>
+                                        <th>Service</th>
+                                        <th>Phone</th>
+                                        <th>Status</th>
+                                        <th>Joined</th>
+                                        <th>Called</th>
+                                        <th>Completed</th>
+                                        <th>Postpones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{range .QueueEntries}}
+                                        <tr>
+                                            <td><strong>{{.QueueNumber}}</strong></td>
+                                            <td>
+                                                <span class="badge {{if eq .ServiceType "A"}}bg-primary{{else if eq .ServiceType "B"}}bg-success{{else}}bg-warning{{end}}">
+                                                    {{.ServiceType}}
+                                                </span>
+                                            </td>
+                                            <td>{{.PhoneNumber}}</td>
+                                            <td>
+                                                {{if eq .Status "active"}}
+                                                    <span class="badge bg-warning">Waiting</span>
+                                                {{else if eq .Status "processing"}}
+                                                    <span class="badge bg-info">Processing</span>
+                                                {{else if eq .Status "serviced"}}
+                                                    <span class="badge bg-success">Completed</span>
+                                                {{else if eq .Status "postponed"}}
+                                                    <span class="badge bg-secondary">Postponed</span>
+                                                {{end}}
+                                            </td>
+                                            <td>{{.CreatedAt.Format "15:04"}}</td>
+                                            <td>
+                                                {{if .CalledAt}}
+                                                    {{.CalledAt.Format "15:04"}}
+                                                {{else}}
+                                                    -
+                                                {{end}}
+                                            </td>
+                                            <td>
+                                                {{if .ServicedAt}}
+                                                    {{.ServicedAt.Format "15:04"}}
+                                                {{else}}
+                                                    -
+                                                {{end}}
+                                            </td>
+                                            <td>
+                                                {{if gt .PostponeCount 0}}
+                                                    <span class="badge bg-warning">{{.PostponeCount}}</span>
+                                                {{else}}
+                                                    -
+                                                {{end}}
+                                            </td>
+                                        </tr>
+                                    {{end}}
+                                </tbody>
+                            </table>
+                        </div>
+                    {{else}}
+                        <div class="text-center py-4">
+                            <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                            <h4 class="text-muted mt-2">No Queue Entries Today</h4>
+                            <p class="text-muted">No customers have joined the queue yet today.</p>
+                        </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Service Status -->
+    <div class="row mt-3">
+        <div class="col-md-4">
+            <div class="card border-primary">
+                <div class="card-header bg-primary text-white text-center">
+                    <h5 class="card-title mb-0">Service A</h5>
+                    <small>General Inquiries</small>
+                </div>
+                <div class="card-body text-center" id="service-a-info">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-success">
+                <div class="card-header bg-success text-white text-center">
+                    <h5 class="card-title mb-0">Service B</h5>
+                    <small>Account Services</small>
+                </div>
+                <div class="card-body text-center" id="service-b-info">
+                    <div class="spinner-border text-success" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-white text-center">
+                    <h5 class="card-title mb-0">Service C</h5>
+                    <small>Technical Support</small>
+                </div>
+                <div class="card-body text-center" id="service-c-info">
+                    <div class="spinner-border text-warning" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// WebSocket connection for real-time updates
+let ws;
+function connectWebSocket() {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws`;
+    
+    ws = new WebSocket(wsUrl);
+    
+    ws.onopen = function(event) {
+        console.log('WebSocket connected');
+    };
+    
+    ws.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        updateServiceInfo(data);
+    };
+    
+    ws.onclose = function(event) {
+        console.log('WebSocket disconnected, reconnecting...');
+        setTimeout(connectWebSocket, 3000);
+    };
+    
+    ws.onerror = function(error) {
+        console.error('WebSocket error:', error);
+    };
+}
+
+function updateServiceInfo(data) {
+    // Update Service A
+    if (data.A) {
+        const serviceADiv = document.getElementById('service-a-info');
+        serviceADiv.innerHTML = `
+            <div class="row">
+                <div class="col-6">
+                    <h4>${data.A.active || 0}</h4>
+                    <small class="text-muted">Waiting</small>
+                </div>
+                <div class="col-6">
+                    <h4>${data.A.processing ? data.A.processing.length : 0}</h4>
+                    <small class="text-muted">Processing</small>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Update Service B
+    if (data.B) {
+        const serviceBDiv = document.getElementById('service-b-info');
+        serviceBDiv.innerHTML = `
+            <div class="row">
+                <div class="col-6">
+                    <h4>${data.B.active || 0}</h4>
+                    <small class="text-muted">Waiting</small>
+                </div>
+                <div class="col-6">
+                    <h4>${data.B.processing ? data.B.processing.length : 0}</h4>
+                    <small class="text-muted">Processing</small>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Update Service C
+    if (data.C) {
+        const serviceCDiv = document.getElementById('service-c-info');
+        serviceCDiv.innerHTML = `
+            <div class="row">
+                <div class="col-6">
+                    <h4>${data.C.active || 0}</h4>
+                    <small class="text-muted">Waiting</small>
+                </div>
+                <div class="col-6">
+                    <h4>${data.C.processing ? data.C.processing.length : 0}</h4>
+                    <small class="text-muted">Processing</small>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// Initialize WebSocket
+connectWebSocket();
+
+// No auto-refresh - using WebSocket streaming for real-time updates
+console.log('Admin dashboard using WebSocket streaming only - no page refreshes');
+</script>
+{{end}}

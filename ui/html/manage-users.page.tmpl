@@ -1,0 +1,249 @@
+{{template "base" .}}
+
+{{define "title"}}Manage Users{{end}}
+
+{{define "main"}}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mt-3">
+                <div class="card-header bg-success text-white">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h3 class="card-title mb-0">
+                                <i class="bi bi-people"></i>
+                                User Management
+                            </h3>
+                        </div>
+                        <div class="col-auto">
+                            <a href="/admin" class="btn btn-outline-light">
+                                <i class="bi bi-arrow-left"></i>
+                                Back to Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <!-- Create New User -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-person-plus"></i>
+                        Create New User
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {{if .Flash}}
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="bi bi-check-circle"></i>
+                            {{.Flash}}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {{end}}
+
+                    <form action='/admin/users' method='POST'>
+                        <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
+                        
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" 
+                                   class="form-control {{if .Form}}{{with .Form.Errors.Get "name"}}is-invalid{{end}}{{end}}" 
+                                   id="name" 
+                                   name="name" 
+                                   value="{{if .Form}}{{.Form.Get "name"}}{{end}}"
+                                   required>
+                            {{if .Form}}{{with .Form.Errors.Get "name"}}
+                                <div class="invalid-feedback">{{.}}</div>
+                            {{end}}{{end}}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" 
+                                   class="form-control {{if .Form}}{{with .Form.Errors.Get "email"}}is-invalid{{end}}{{end}}" 
+                                   id="email" 
+                                   name="email" 
+                                   value="{{if .Form}}{{.Form.Get "email"}}{{end}}"
+                                   required>
+                            {{if .Form}}{{with .Form.Errors.Get "email"}}
+                                <div class="invalid-feedback">{{.}}</div>
+                            {{end}}{{end}}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" 
+                                   class="form-control {{if .Form}}{{with .Form.Errors.Get "password"}}is-invalid{{end}}{{end}}" 
+                                   id="password" 
+                                   name="password"
+                                   minlength="6"
+                                   required>
+                            <div class="form-text">Minimum 6 characters</div>
+                            {{if .Form}}{{with .Form.Errors.Get "password"}}
+                                <div class="invalid-feedback">{{.}}</div>
+                            {{end}}{{end}}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="role" class="form-label">Role</label>
+                            <select class="form-select {{if .Form}}{{with .Form.Errors.Get "role"}}is-invalid{{end}}{{end}}" 
+                                    id="role" 
+                                    name="role" 
+                                    required>
+                                <option value="">Choose a role...</option>
+                                <option value="admin" {{if .Form}}{{if eq (.Form.Get "role") "admin"}}selected{{end}}{{end}}>
+                                    Administrator
+                                </option>
+                                <option value="operator" {{if .Form}}{{if eq (.Form.Get "role") "operator"}}selected{{end}}{{end}}>
+                                    Operator
+                                </option>
+                            </select>
+                            {{if .Form}}{{with .Form.Errors.Get "role"}}
+                                <div class="invalid-feedback">{{.}}</div>
+                            {{end}}{{end}}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="service_type" class="form-label">Service Type</label>
+                            <select class="form-select {{if .Form}}{{with .Form.Errors.Get "service_type"}}is-invalid{{end}}{{end}}" 
+                                    id="service_type" 
+                                    name="service_type" 
+                                    required>
+                                <option value="">Choose a service...</option>
+                                <option value="A" {{if .Form}}{{if eq (.Form.Get "service_type") "A"}}selected{{end}}{{end}}>
+                                    Service A - General Inquiries
+                                </option>
+                                <option value="B" {{if .Form}}{{if eq (.Form.Get "service_type") "B"}}selected{{end}}{{end}}>
+                                    Service B - Account Services
+                                </option>
+                                <option value="C" {{if .Form}}{{if eq (.Form.Get "service_type") "C"}}selected{{end}}{{end}}>
+                                    Service C - Technical Support
+                                </option>
+                            </select>
+                            <div class="form-text">Primary service type for operators, administrative service for admins</div>
+                            {{if .Form}}{{with .Form.Errors.Get "service_type"}}
+                                <div class="invalid-feedback">{{.}}</div>
+                            {{end}}{{end}}
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-person-plus"></i>
+                                Create User
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Users -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-people-fill"></i>
+                        Current Users
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Default users list -->
+                    <div class="list-group">
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Administrator</h6>
+                                <span class="badge bg-dark">Admin</span>
+                            </div>
+                            <p class="mb-1">admin@queue.com</p>
+                            <small class="text-muted">Service A</small>
+                        </div>
+                        
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Operator A</h6>
+                                <span class="badge bg-primary">Operator</span>
+                            </div>
+                            <p class="mb-1">operatora@queue.com</p>
+                            <small class="text-muted">Service A - General Inquiries</small>
+                        </div>
+                        
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Operator B</h6>
+                                <span class="badge bg-success">Operator</span>
+                            </div>
+                            <p class="mb-1">operatorb@queue.com</p>
+                            <small class="text-muted">Service B - Account Services</small>
+                        </div>
+                        
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Operator C</h6>
+                                <span class="badge bg-warning">Operator</span>
+                            </div>
+                            <p class="mb-1">operatorc@queue.com</p>
+                            <small class="text-muted">Service C - Technical Support</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Management Instructions -->
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-info-circle"></i>
+                        User Management Guidelines
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-shield-check text-primary"></i> Administrator Role</h6>
+                            <ul class="list-unstyled">
+                                <li>• Full system access</li>
+                                <li>• Can view all statistics and reports</li>
+                                <li>• Can manage users</li>
+                                <li>• Can monitor all services</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-person-workspace text-success"></i> Operator Role</h6>
+                            <ul class="list-unstyled">
+                                <li>• Service-specific access</li>
+                                <li>• Can manage assigned queue</li>
+                                <li>• Can call and serve customers</li>
+                                <li>• Can postpone queue entries</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6><i class="bi bi-info-circle text-primary"></i> Service A</h6>
+                            <p class="text-muted">General Inquiries - Basic information and help</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6><i class="bi bi-person-badge text-success"></i> Service B</h6>
+                            <p class="text-muted">Account Services - Account management and updates</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6><i class="bi bi-tools text-warning"></i> Service C</h6>
+                            <p class="text-muted">Technical Support - Technical issues and troubleshooting</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}
