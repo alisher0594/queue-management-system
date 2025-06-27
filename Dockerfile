@@ -1,5 +1,5 @@
 # Build stage
-FROM golang:1.21-alpine AS builder
+FROM golang:1.24-alpine AS builder
 
 # Install Node.js and npm for node_modules
 RUN apk add --no-cache nodejs npm
