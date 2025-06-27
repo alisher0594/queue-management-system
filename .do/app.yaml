@@ -5,7 +5,7 @@ services:
   dockerfile_path: Dockerfile
   source_dir: /
   github:
-    repo: YOUR_USERNAME/queue-management-system
+    repo: alisher0594/queue-management-system
     branch: main
     deploy_on_push: true
   instance_count: 1
