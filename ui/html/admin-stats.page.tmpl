@@ -184,17 +184,17 @@
                                         {{end}}
                                     </td>
                                     <td>
-                                        {{if .CompletedAt}}
-                                            {{.CompletedAt.Format "15:04:05"}}
+                                        {{if .ServicedAt}}
+                                            {{.ServicedAt.Format "15:04:05"}}
                                         {{else}}
                                             -
                                         {{end}}
                                     </td>
                                     <td>
-                                        {{if and .CalledAt .CompletedAt}}
-                                            {{printf "%.0f" .CompletedAt.Sub.CreatedAt.Minutes}} min
+                                        {{if and .CalledAt .ServicedAt}}
+                                            {{printf "%.0f" (.ServicedAt.Sub .CreatedAt).Minutes}} min
                                         {{else if .CalledAt}}
-                                            {{printf "%.0f" .CalledAt.Sub.CreatedAt.Minutes}} min
+                                            {{printf "%.0f" (.CalledAt.Sub .CreatedAt).Minutes}} min
                                         {{else}}
                                             -
                                         {{end}}
