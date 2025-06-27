@@ -237,6 +237,12 @@ func templateFunctions() template.FuncMap {
 		"ge": func(a, b int) bool {
 			return a >= b
 		},
+		"durationMinutes": func(start, end time.Time) float64 {
+			if start.IsZero() || end.IsZero() {
+				return 0
+			}
+			return end.Sub(start).Minutes()
+		},
 	}
 }
 

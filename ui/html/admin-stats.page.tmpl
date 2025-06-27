@@ -192,9 +192,9 @@
                                     </td>
                                     <td>
                                         {{if and .CalledAt .ServicedAt}}
-                                            {{printf "%.0f" (.ServicedAt.Sub .CreatedAt).Minutes}} min
+                                            {{printf "%.0f" (durationMinutes .CreatedAt .ServicedAt)}} min
                                         {{else if .CalledAt}}
-                                            {{printf "%.0f" (.CalledAt.Sub .CreatedAt).Minutes}} min
+                                            {{printf "%.0f" (durationMinutes .CreatedAt .CalledAt)}} min
                                         {{else}}
                                             -
                                         {{end}}
